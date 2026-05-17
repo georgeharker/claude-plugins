@@ -1,0 +1,8 @@
+{
+  "name": "ruff-lsp",
+  "version": "0.1.0",
+  "description": "Register `ruff server` as the Python LSP. Surfaces ruff diagnostics and code actions via LSP. Mutually exclusive with the `pylsp` plugin — only one server can claim `python`.",
+  "author": {
+    "name": "George Harker"
+  }
+}

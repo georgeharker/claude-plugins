@@ -1,0 +1,8 @@
+{
+  "name": "ruff-hooks",
+  "version": "0.2.0",
+  "description": "PostToolUse hook: run `ruff check --fix` and `ruff format` on Python files after Claude edits them, and surface any remaining diagnostics. No LSP — pairs with either ruff-lsp or pylsp for in-editor diagnostics.",
+  "author": {
+    "name": "George Harker"
+  }
+}

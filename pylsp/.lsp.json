@@ -1,0 +1,46 @@
+{
+  "python": {
+    "command": "${CLAUDE_PLUGIN_ROOT}/bin/pylsp",
+    "args": [],
+    "extensionToLanguage": {
+      ".py": "python",
+      ".pyi": "python"
+    },
+    "initializationOptions": {
+      "pylsp": {
+        "configurationSources": ["flake8"],
+        "plugins": {
+          "pylsp_mypy": {
+            "enabled": true,
+            "live_mode": true,
+            "report_progress": false,
+            "overrides": [true, "--cache-fine-grained", "--show-error-codes"]
+          },
+          "jedi_completion": {
+            "enabled": true,
+            "fuzzy": true,
+            "include_params": true
+          },
+          "jedi_definition": { "enabled": true },
+          "jedi_references": { "enabled": true },
+          "jedi_hover": { "enabled": true },
+          "jedi_symbols": { "enabled": true },
+          "jedi_rename": { "enabled": false },
+          "rope_rename": { "enabled": false },
+          "pylsp_rope": { "enabled": true, "rename": true },
+          "rope_autoimport": { "enabled": false },
+          "flake8": { "enabled": false },
+          "mccabe": { "enabled": false },
+          "pyflakes": { "enabled": false },
+          "pycodestyle": { "enabled": false },
+          "pylint": { "enabled": false },
+          "isort": { "enabled": false },
+          "yapf": { "enabled": false },
+          "autopep8": { "enabled": false },
+          "pylsp_black": { "enabled": false },
+          "ruff": { "enabled": false }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "shell": {
+    "command": "shuck",
+    "args": ["server"],
+    "extensionToLanguage": {
+      ".sh": "shellscript",
+      ".bash": "shellscript",
+      ".zsh": "shellscript",
+      ".ksh": "shellscript"
+    }
+  }
+}

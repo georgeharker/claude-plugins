@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Wrapper that finds pylsp on PATH first, falls back to ~/.venv/bin/pylsp,
+# then execs it with all args. Used by .lsp.json so the LSP launcher
+# doesn't depend on the harness's PATH including the global venv.
+
+set -eu
+
+if real="$(command -v pylsp 2>/dev/null)" && [[ -x "$real" && "$real" != "$0" ]]; then
+  exec "$real" "$@"
+fi
+
+if [[ -x "$HOME/.venv/bin/pylsp" ]]; then
+  exec "$HOME/.venv/bin/pylsp" "$@"
+fi
+
+echo "pylsp wrapper: pylsp not found on PATH or in ~/.venv/bin" >&2
+exit 127
