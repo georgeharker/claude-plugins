@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
-# Wrapper that finds mypy on PATH first, then walks up from cwd looking
-# for `.venv/bin/mypy`, then falls back to `~/.venv/bin/mypy`.
+# Wrapper that prefers the current project's venv: it walks up from cwd
+# looking for `.venv/bin/mypy`, then falls back to mypy on PATH, then to
+# `~/.venv/bin/mypy`. Preferring the project venv means mypy type-checks
+# against the project's installed dependencies.
 
 set -eu
-
-if real="$(command -v mypy 2>/dev/null)" && [[ -x "$real" && "$real" != "$0" ]]; then
-  exec "$real" "$@"
-fi
 
 dir="$PWD"
 while :; do
@@ -18,9 +16,13 @@ while :; do
   dir="$parent"
 done
 
+if real="$(command -v mypy 2>/dev/null)" && [[ -x "$real" && "$real" != "$0" ]]; then
+  exec "$real" "$@"
+fi
+
 if [[ -x "$HOME/.venv/bin/mypy" ]]; then
   exec "$HOME/.venv/bin/mypy" "$@"
 fi
 
-echo "mypy wrapper: mypy not found on PATH, in any .venv/bin/ walking up from $PWD, or in ~/.venv/bin" >&2
+echo "mypy wrapper: mypy not found in any .venv/bin/ walking up from $PWD, on PATH, or in ~/.venv/bin" >&2
 exit 127

@@ -1,6 +1,6 @@
 {
   "name": "shuck",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Run shuck check --fix on shell files (.sh/.bash/.zsh) after Claude edits them. Includes best-effort LSP wiring via `shuck server`.",
   "author": {
     "name": "George Harker"

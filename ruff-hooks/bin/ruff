@@ -1,14 +1,10 @@
 #!/usr/bin/env bash
-# Wrapper that finds ruff on PATH first, then walks up from the current
-# directory looking for a `.venv/bin/ruff` (your per-project venv pattern),
-# then falls back to `~/.venv/bin/ruff`. Used by .lsp.json so the LSP
-# launcher doesn't depend on the harness's PATH.
+# Wrapper that prefers the current project's venv: it walks up from the
+# current directory looking for `.venv/bin/ruff` (your per-project venv
+# pattern), then falls back to ruff on PATH, then to `~/.venv/bin/ruff`.
+# Used by the PostToolUse hook so it lints with the project's ruff.
 
 set -eu
-
-if real="$(command -v ruff 2>/dev/null)" && [[ -x "$real" && "$real" != "$0" ]]; then
-  exec "$real" "$@"
-fi
 
 # Walk up from cwd looking for a project venv.
 dir="$PWD"
@@ -21,9 +17,13 @@ while :; do
   dir="$parent"
 done
 
+if real="$(command -v ruff 2>/dev/null)" && [[ -x "$real" && "$real" != "$0" ]]; then
+  exec "$real" "$@"
+fi
+
 if [[ -x "$HOME/.venv/bin/ruff" ]]; then
   exec "$HOME/.venv/bin/ruff" "$@"
 fi
 
-echo "ruff wrapper: ruff not found on PATH, in any .venv/bin/ walking up from $PWD, or in ~/.venv/bin" >&2
+echo "ruff wrapper: ruff not found in any .venv/bin/ walking up from $PWD, on PATH, or in ~/.venv/bin" >&2
 exit 127

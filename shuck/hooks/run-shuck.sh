@@ -22,14 +22,18 @@ case "$file" in
     ;;
 esac
 
-if ! command -v shuck >/dev/null 2>&1; then
-  echo "shuck plugin: shuck is not installed (cargo install shuck)" >&2
+# Delegate shuck resolution to the bin/shuck wrapper so the LSP entry and
+# this hook share the same cargo / project-build / ~/.cargo/bin lookup.
+shuck_bin="${CLAUDE_PLUGIN_ROOT}/bin/shuck"
+
+if ! "$shuck_bin" --version >/dev/null 2>&1; then
+  echo "shuck plugin: shuck not found (try: cargo install shuck)" >&2
   exit 0
 fi
 
-shuck check --fix --output-format=concise "$file" >/dev/null 2>&1 || true
+"$shuck_bin" check --fix --output-format=concise "$file" >/dev/null 2>&1 || true
 
-remaining="$(shuck check --output-format=concise "$file" 2>&1 || true)"
+remaining="$("$shuck_bin" check --output-format=concise "$file" 2>&1 || true)"
 if [[ -n "$remaining" ]]; then
   echo "shuck diagnostics for $file:" >&2
   echo "$remaining" >&2

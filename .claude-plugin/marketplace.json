@@ -10,25 +10,25 @@
       "name": "ruff-hooks",
       "source": "./ruff-hooks",
       "description": "PostToolUse hook: autofix + format Python on every edit; surface remaining ruff diagnostics. No LSP — composes with ruff-lsp or pylsp.",
-      "version": "0.2.0"
+      "version": "0.2.1"
     },
     {
       "name": "ruff-lsp",
       "source": "./ruff-lsp",
       "description": "Registers `ruff server` as the Python LSP. Mutually exclusive with the `pylsp` plugin.",
-      "version": "0.1.0"
+      "version": "0.1.1"
     },
     {
       "name": "pylsp",
       "source": "./pylsp",
       "description": "Registers python-lsp-server + pylsp-mypy as the Python LSP; mypy-on-edit fallback hook. Mutually exclusive with the `ruff-lsp` plugin.",
-      "version": "0.1.0"
+      "version": "0.1.1"
     },
     {
       "name": "shuck",
       "source": "./shuck",
       "description": "Lint + auto-fix shell files on every edit; registers shuck server as LSP.",
-      "version": "0.1.0"
+      "version": "0.1.1"
     }
   ]
 }

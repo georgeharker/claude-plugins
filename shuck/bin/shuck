@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Wrapper that prefers a project-local cargo build: it walks up from cwd
+# looking for `target/release/shuck` then `target/debug/shuck`, then falls
+# back to shuck on PATH, then to `~/.cargo/bin/shuck`. shuck is a Rust tool,
+# so its project-local artifact lives under cargo's target dir (not a venv).
+
+set -eu
+
+dir="$PWD"
+while :; do
+  if [[ -x "$dir/target/release/shuck" ]]; then
+    exec "$dir/target/release/shuck" "$@"
+  fi
+  if [[ -x "$dir/target/debug/shuck" ]]; then
+    exec "$dir/target/debug/shuck" "$@"
+  fi
+  parent="$(dirname "$dir")"
+  [[ "$parent" == "$dir" ]] && break
+  dir="$parent"
+done
+
+if real="$(command -v shuck 2>/dev/null)" && [[ -x "$real" && "$real" != "$0" ]]; then
+  exec "$real" "$@"
+fi
+
+if [[ -x "$HOME/.cargo/bin/shuck" ]]; then
+  exec "$HOME/.cargo/bin/shuck" "$@"
+fi
+
+echo "shuck wrapper: shuck not found in any target/{release,debug}/ walking up from $PWD, on PATH, or in ~/.cargo/bin (try: cargo install shuck)" >&2
+exit 127

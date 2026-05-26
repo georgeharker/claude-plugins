@@ -1,9 +1,20 @@
 #!/usr/bin/env bash
-# Wrapper that finds pylsp on PATH first, falls back to ~/.venv/bin/pylsp,
-# then execs it with all args. Used by .lsp.json so the LSP launcher
-# doesn't depend on the harness's PATH including the global venv.
+# Wrapper that prefers the current project's venv: it walks up from cwd
+# looking for `.venv/bin/pylsp`, then falls back to pylsp on PATH, then to
+# `~/.venv/bin/pylsp`. Used by .lsp.json so the LSP launcher uses the
+# project's pylsp (and its installed plugins) rather than a global one.
 
 set -eu
+
+dir="$PWD"
+while :; do
+  if [[ -x "$dir/.venv/bin/pylsp" ]]; then
+    exec "$dir/.venv/bin/pylsp" "$@"
+  fi
+  parent="$(dirname "$dir")"
+  [[ "$parent" == "$dir" ]] && break
+  dir="$parent"
+done
 
 if real="$(command -v pylsp 2>/dev/null)" && [[ -x "$real" && "$real" != "$0" ]]; then
   exec "$real" "$@"
@@ -13,5 +24,5 @@ if [[ -x "$HOME/.venv/bin/pylsp" ]]; then
   exec "$HOME/.venv/bin/pylsp" "$@"
 fi
 
-echo "pylsp wrapper: pylsp not found on PATH or in ~/.venv/bin" >&2
+echo "pylsp wrapper: pylsp not found in any .venv/bin/ walking up from $PWD, on PATH, or in ~/.venv/bin" >&2
 exit 127

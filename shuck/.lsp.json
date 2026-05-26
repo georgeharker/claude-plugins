@@ -1,6 +1,6 @@
 {
   "shell": {
-    "command": "shuck",
+    "command": "${CLAUDE_PLUGIN_ROOT}/bin/shuck",
     "args": ["server"],
     "extensionToLanguage": {
       ".sh": "shellscript",
