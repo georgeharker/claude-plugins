@@ -1,10 +1,13 @@
 {
-  "python": {
+  "ruff": {
     "command": "${CLAUDE_PLUGIN_ROOT}/bin/ruff",
     "args": ["server"],
     "extensionToLanguage": {
       ".py": "python",
-      ".pyi": "python"
-    }
+      ".pyi": "python",
+      ".pyw": "python"
+    },
+    "transport": "stdio",
+    "maxRestarts": 3
   }
 }

@@ -1,11 +1,14 @@
 {
-  "python": {
+  "pylsp": {
     "command": "${CLAUDE_PLUGIN_ROOT}/bin/pylsp",
     "args": [],
     "extensionToLanguage": {
       ".py": "python",
-      ".pyi": "python"
+      ".pyi": "python",
+      ".pyw": "python"
     },
+    "transport": "stdio",
+    "maxRestarts": 3,
     "initializationOptions": {
       "pylsp": {
         "configurationSources": ["flake8"],
