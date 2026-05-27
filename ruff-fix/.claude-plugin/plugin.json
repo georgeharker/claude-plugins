@@ -1,0 +1,8 @@
+{
+  "name": "ruff-fix",
+  "version": "0.3.0",
+  "description": "`/ruff-fix` command: run `ruff check --fix` and `ruff format` on changed (or named) Python files and surface remaining diagnostics. Also ships an opt-in PostToolUse hook (RUFF_FIX_ON_EDIT / RUFF_DIAGNOSTICS_ON_EDIT, both off by default). No LSP — pairs with ruff-lsp or pylsp for diagnostics.",
+  "author": {
+    "name": "George Harker"
+  }
+}

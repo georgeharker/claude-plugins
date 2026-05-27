@@ -1,7 +1,7 @@
 {
   "name": "pylsp",
-  "version": "0.1.1",
-  "description": "Register python-lsp-server (pylsp) as the Python LSP, with pylsp-mypy for type diagnostics. Includes a fallback mypy hook in case the harness doesn't honor plugin LSP configs.",
+  "version": "0.2.0",
+  "description": "Register python-lsp-server (pylsp) as the Python LSP, with pylsp-mypy for type diagnostics. Ships an opt-in mypy-on-edit fallback hook (PYLSP_MYPY_ON_EDIT=1) for harnesses that don't honor plugin LSP configs. Mutually exclusive with the `ruff-lsp` plugin.",
   "author": {
     "name": "George Harker"
   }

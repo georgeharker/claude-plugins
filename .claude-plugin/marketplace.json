@@ -1,16 +1,16 @@
 {
   "name": "georgeharker",
-  "description": "Personal Claude Code plugins wrapping ruff, python-lsp-server (with pylsp-mypy), and shuck — LSP entries plus PostToolUse hooks.",
+  "description": "Personal Claude Code plugins wrapping ruff, python-lsp-server (with pylsp-mypy), and shuck — LSP entries plus `/*-fix` commands, with opt-in PostToolUse hooks.",
   "owner": {
     "name": "George Harker",
     "email": "george@georgeharker.com"
   },
   "plugins": [
     {
-      "name": "ruff-hooks",
-      "source": "./ruff-hooks",
-      "description": "PostToolUse hook: autofix + format Python on every edit; surface remaining ruff diagnostics. No LSP — composes with ruff-lsp or pylsp.",
-      "version": "0.2.1"
+      "name": "ruff-fix",
+      "source": "./ruff-fix",
+      "description": "`/ruff-fix` command (ruff check --fix + format on changed/named files) plus an opt-in autofix/diagnostics-on-edit hook. No LSP — composes with ruff-lsp or pylsp.",
+      "version": "0.3.0"
     },
     {
       "name": "ruff-lsp",
@@ -21,14 +21,14 @@
     {
       "name": "pylsp",
       "source": "./pylsp",
-      "description": "Registers python-lsp-server + pylsp-mypy as the Python LSP; mypy-on-edit fallback hook. Mutually exclusive with the `ruff-lsp` plugin.",
-      "version": "0.1.1"
+      "description": "Registers python-lsp-server + pylsp-mypy as the Python LSP; opt-in mypy-on-edit fallback hook. Mutually exclusive with the `ruff-lsp` plugin.",
+      "version": "0.2.0"
     },
     {
       "name": "shuck",
       "source": "./shuck",
-      "description": "Lint + auto-fix shell files on every edit; registers shuck server as LSP.",
-      "version": "0.1.1"
+      "description": "Registers `shuck server` as the shell LSP, plus a `/shuck-fix` command and an opt-in autofix/diagnostics-on-edit hook.",
+      "version": "0.2.0"
     }
   ]
 }

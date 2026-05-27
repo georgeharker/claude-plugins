@@ -1,5 +1,5 @@
 {
-  "description": "Run ruff check --fix and ruff format on Python files after Claude edits them.",
+  "description": "Opt-in (off by default): on Python edits, autofix+format (RUFF_FIX_ON_EDIT=1) and/or report diagnostics (RUFF_DIAGNOSTICS_ON_EDIT=1).",
   "hooks": {
     "PostToolUse": [
       {

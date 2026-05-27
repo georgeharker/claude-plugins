@@ -1,5 +1,5 @@
 {
-  "description": "Fallback mypy check after edits, in case the plugin-supplied .lsp.json is not honored by the harness.",
+  "description": "Opt-in (off by default): on Python edits, run a fallback mypy check (PYLSP_MYPY_ON_EDIT=1) for harnesses that don't honor the plugin-supplied .lsp.json.",
   "hooks": {
     "PostToolUse": [
       {

@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Fix + format Python with ruff, then report what ruff couldn't auto-fix.
+# With --no-fix as the first argument, skips the mutation and only reports
+# diagnostics (used by the diagnostics-on-edit hook mode).
+#
+# Targets the paths passed as arguments, or — when none are given — the repo's
+# changed + untracked .py files. Shared by the /ruff-fix command and the opt-in
+# PostToolUse hook, so they run one implementation.
+#
+# Resolution of the ruff binary itself is delegated to the sibling bin/ruff
+# wrapper ($VIRTUAL_ENV -> PATH -> project .venv -> ~/.venv).
+
+set -u
+
+here="$(cd "$(dirname "$0")" && pwd)"
+ruff="$here/ruff"
+
+do_fix=1
+if [[ "${1:-}" == "--no-fix" ]]; then
+  do_fix=
+  shift
+fi
+
+files=()
+if (($#)); then
+  for f in "$@"; do
+    [[ "$f" == *.py || "$f" == *.pyi || "$f" == *.ipynb ]] && [[ -f "$f" ]] && files+=("$f")
+  done
+elif git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  while IFS= read -r f; do
+    [[ "$f" == *.py || "$f" == *.pyi || "$f" == *.ipynb ]] && [[ -f "$f" ]] && files+=("$f")
+  done < <(
+    {
+      git diff --name-only --diff-filter=ACMR
+      git diff --name-only --cached --diff-filter=ACMR
+      git ls-files --others --exclude-standard
+    } | sort -u
+  )
+fi
+
+if ((${#files[@]} == 0)); then
+  echo "ruff-fix: no Python files to fix (pass paths, or edit some .py files first)."
+  exit 0
+fi
+
+if [[ -n "$do_fix" ]]; then
+  "$ruff" check --fix --quiet "${files[@]}" 2>&1 || true
+  "$ruff" format --quiet "${files[@]}" 2>&1 || true
+fi
+
+if remaining="$("$ruff" check --no-fix --output-format=concise "${files[@]}" 2>&1)" && [[ -z "$remaining" ]]; then
+  if [[ -n "$do_fix" ]]; then
+    echo "ruff-fix: fixed and formatted ${#files[@]} file(s); no remaining diagnostics."
+  else
+    echo "ruff-fix: ${#files[@]} file(s) checked; no diagnostics."
+  fi
+else
+  if [[ -n "$do_fix" ]]; then
+    echo "ruff-fix: fixed and formatted ${#files[@]} file(s). Remaining diagnostics:"
+  else
+    echo "ruff-fix: diagnostics for ${#files[@]} file(s):"
+  fi
+  echo "$remaining"
+fi

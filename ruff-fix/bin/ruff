@@ -5,8 +5,8 @@
 #   2. first real ruff on PATH — respects activation, pyenv/conda shims, globals
 #   3. .venv/bin/ruff walking up from cwd — a project venv on disk but not active
 #   4. ~/.venv/bin/ruff       — personal global fallback
-# Used by .lsp.json so the LSP launcher resolves ruff the same way the fix
-# command/hook does, and survives the harness running with a stripped PATH.
+# Shared by the LSP entry and the fix command/hook so resolution is consistent
+# and survives the harness running with a stripped PATH.
 
 set -eu
 

@@ -1,5 +1,5 @@
 {
-  "description": "Run shuck check --fix on shell files after Claude edits them.",
+  "description": "Opt-in (off by default): on shell edits, autofix (SHUCK_FIX_ON_EDIT=1) and/or report diagnostics (SHUCK_DIAGNOSTICS_ON_EDIT=1).",
   "hooks": {
     "PostToolUse": [
       {

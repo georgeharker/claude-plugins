@@ -1,10 +1,30 @@
 #!/usr/bin/env bash
-# Wrapper that prefers the current project's venv: it walks up from cwd
-# looking for `.venv/bin/mypy`, then falls back to mypy on PATH, then to
-# `~/.venv/bin/mypy`. Preferring the project venv means mypy type-checks
-# against the project's installed dependencies.
+# claude-plugin-tool-wrapper
+# Resolve the mypy binary, preferring the most explicit signal of intent:
+#   1. $VIRTUAL_ENV/bin/mypy  — an activated venv (survives a stripped PATH)
+#   2. first real mypy on PATH — respects activation, pyenv/conda shims, globals
+#   3. .venv/bin/mypy walking up from cwd — a project venv on disk but not active
+#   4. ~/.venv/bin/mypy       — personal global fallback
+# Preferring an explicit/active env means mypy type-checks against the project's
+# installed dependencies and stubs. Used by the opt-in mypy fallback hook.
 
 set -eu
+
+if [[ -n "${VIRTUAL_ENV:-}" && -x "$VIRTUAL_ENV/bin/mypy" ]]; then
+  exec "$VIRTUAL_ENV/bin/mypy" "$@"
+fi
+
+# First mypy on PATH that isn't one of these plugin wrappers (marker grep).
+found=
+while IFS= read -r cand; do
+  [[ -x "$cand" ]] || continue
+  grep -q 'claude-plugin-tool-wrapper' "$cand" 2>/dev/null && continue
+  found="$cand"
+  break
+done < <(type -ap mypy 2>/dev/null)
+if [[ -n "$found" ]]; then
+  exec "$found" "$@"
+fi
 
 dir="$PWD"
 while :; do
@@ -16,13 +36,9 @@ while :; do
   dir="$parent"
 done
 
-if real="$(command -v mypy 2>/dev/null)" && [[ -x "$real" && "$real" != "$0" ]]; then
-  exec "$real" "$@"
-fi
-
 if [[ -x "$HOME/.venv/bin/mypy" ]]; then
   exec "$HOME/.venv/bin/mypy" "$@"
 fi
 
-echo "mypy wrapper: mypy not found in any .venv/bin/ walking up from $PWD, on PATH, or in ~/.venv/bin" >&2
+echo "mypy wrapper: mypy not found via \$VIRTUAL_ENV, on PATH, in any .venv/bin walking up from $PWD, or in ~/.venv/bin" >&2
 exit 127

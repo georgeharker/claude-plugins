@@ -1,10 +1,30 @@
 #!/usr/bin/env bash
-# Wrapper that prefers the current project's venv: it walks up from cwd
-# looking for `.venv/bin/pylsp`, then falls back to pylsp on PATH, then to
-# `~/.venv/bin/pylsp`. Used by .lsp.json so the LSP launcher uses the
-# project's pylsp (and its installed plugins) rather than a global one.
+# claude-plugin-tool-wrapper
+# Resolve the pylsp binary, preferring the most explicit signal of intent:
+#   1. $VIRTUAL_ENV/bin/pylsp  — an activated venv (survives a stripped PATH)
+#   2. first real pylsp on PATH — respects activation, pyenv/conda shims, globals
+#   3. .venv/bin/pylsp walking up from cwd — a project venv on disk but not active
+#   4. ~/.venv/bin/pylsp       — personal global fallback
+# Preferring an explicit/active env means pylsp (and its installed plugins, e.g.
+# pylsp-mypy) runs against the project's dependencies. Used by .lsp.json.
 
 set -eu
+
+if [[ -n "${VIRTUAL_ENV:-}" && -x "$VIRTUAL_ENV/bin/pylsp" ]]; then
+  exec "$VIRTUAL_ENV/bin/pylsp" "$@"
+fi
+
+# First pylsp on PATH that isn't one of these plugin wrappers (marker grep).
+found=
+while IFS= read -r cand; do
+  [[ -x "$cand" ]] || continue
+  grep -q 'claude-plugin-tool-wrapper' "$cand" 2>/dev/null && continue
+  found="$cand"
+  break
+done < <(type -ap pylsp 2>/dev/null)
+if [[ -n "$found" ]]; then
+  exec "$found" "$@"
+fi
 
 dir="$PWD"
 while :; do
@@ -16,13 +36,9 @@ while :; do
   dir="$parent"
 done
 
-if real="$(command -v pylsp 2>/dev/null)" && [[ -x "$real" && "$real" != "$0" ]]; then
-  exec "$real" "$@"
-fi
-
 if [[ -x "$HOME/.venv/bin/pylsp" ]]; then
   exec "$HOME/.venv/bin/pylsp" "$@"
 fi
 
-echo "pylsp wrapper: pylsp not found in any .venv/bin/ walking up from $PWD, on PATH, or in ~/.venv/bin" >&2
+echo "pylsp wrapper: pylsp not found via \$VIRTUAL_ENV, on PATH, in any .venv/bin walking up from $PWD, or in ~/.venv/bin" >&2
 exit 127

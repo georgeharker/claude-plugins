@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
-# Fallback hook: runs mypy on edited Python files. Redundant once pylsp's
-# pylsp-mypy plugin is active in the editor, but harmless and useful as a
-# safety net if the harness ignores plugin-supplied .lsp.json.
+# Opt-in fallback hook: run mypy on edited Python files.
+#
+# OFF by default. pylsp's bundled pylsp-mypy plugin already provides mypy
+# diagnostics through the LSP (see .lsp.json), so this is redundant in the
+# normal setup. It exists only as an escape hatch for a harness that ignores
+# the plugin-supplied .lsp.json. Set PYLSP_MYPY_ON_EDIT=1 to enable it.
 # Delegates mypy resolution to bin/mypy.
 
 set -u
+
+[[ -z "${PYLSP_MYPY_ON_EDIT:-}" ]] && exit 0
 
 payload="$(cat)"
 file="$(printf '%s' "$payload" | jq -r '.tool_input.file_path // empty')"

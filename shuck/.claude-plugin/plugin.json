@@ -1,7 +1,7 @@
 {
   "name": "shuck",
-  "version": "0.1.1",
-  "description": "Run shuck check --fix on shell files (.sh/.bash/.zsh) after Claude edits them. Includes best-effort LSP wiring via `shuck server`.",
+  "version": "0.2.0",
+  "description": "Register `shuck server` as the shell LSP, plus a `/shuck-fix` command that runs `shuck check --fix` on changed (or named) shell files. Also ships an opt-in PostToolUse hook (SHUCK_FIX_ON_EDIT / SHUCK_DIAGNOSTICS_ON_EDIT, both off by default).",
   "author": {
     "name": "George Harker"
   }

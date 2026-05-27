@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# Fix shell scripts with shuck, then report what it couldn't auto-fix.
+# With --no-fix as the first argument, skips the mutation and only reports
+# diagnostics (used by the diagnostics-on-edit hook mode).
+#
+# Targets the paths passed as arguments, or — when none are given — the repo's
+# changed + untracked shell files. Shared by the /shuck-fix command and the
+# opt-in PostToolUse hook, so they run one implementation.
+#
+# Resolution of the shuck binary is delegated to the sibling bin/shuck wrapper
+# (PATH -> local cargo build -> ~/.cargo/bin).
+
+set -u
+
+here="$(cd "$(dirname "$0")" && pwd)"
+shuck="$here/shuck"
+
+do_fix=1
+if [[ "${1:-}" == "--no-fix" ]]; then
+  do_fix=
+  shift
+fi
+
+if ! "$shuck" --version >/dev/null 2>&1; then
+  echo "shuck-fix: shuck not found (try: cargo install shuck)."
+  exit 0
+fi
+
+is_shell() {
+  case "$1" in
+    *.sh|*.bash|*.zsh|*.ksh|*.mksh|*.dash) return 0 ;;
+  esac
+  local first
+  first="$(head -n1 "$1" 2>/dev/null || true)"
+  case "$first" in
+    '#!'*sh) return 0 ;;
+  esac
+  return 1
+}
+
+files=()
+if (($#)); then
+  for f in "$@"; do
+    [[ -f "$f" ]] && is_shell "$f" && files+=("$f")
+  done
+elif git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  while IFS= read -r f; do
+    [[ -f "$f" ]] && is_shell "$f" && files+=("$f")
+  done < <(
+    {
+      git diff --name-only --diff-filter=ACMR
+      git diff --name-only --cached --diff-filter=ACMR
+      git ls-files --others --exclude-standard
+    } | sort -u
+  )
+fi
+
+if ((${#files[@]} == 0)); then
+  echo "shuck-fix: no shell files to fix (pass paths, or edit some .sh/.bash/.zsh files first)."
+  exit 0
+fi
+
+if [[ -n "$do_fix" ]]; then
+  "$shuck" check --fix --output-format=concise "${files[@]}" >/dev/null 2>&1 || true
+fi
+
+remaining="$("$shuck" check --output-format=concise "${files[@]}" 2>&1 || true)"
+if [[ -z "$remaining" ]]; then
+  if [[ -n "$do_fix" ]]; then
+    echo "shuck-fix: fixed ${#files[@]} file(s); no remaining diagnostics."
+  else
+    echo "shuck-fix: ${#files[@]} file(s) checked; no diagnostics."
+  fi
+else
+  if [[ -n "$do_fix" ]]; then
+    echo "shuck-fix: fixed ${#files[@]} file(s). Remaining diagnostics:"
+  else
+    echo "shuck-fix: diagnostics for ${#files[@]} file(s):"
+  fi
+  echo "$remaining"
+fi

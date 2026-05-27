@@ -1,10 +1,24 @@
 #!/usr/bin/env bash
-# Wrapper that prefers a project-local cargo build: it walks up from cwd
-# looking for `target/release/shuck` then `target/debug/shuck`, then falls
-# back to shuck on PATH, then to `~/.cargo/bin/shuck`. shuck is a Rust tool,
-# so its project-local artifact lives under cargo's target dir (not a venv).
+# claude-plugin-tool-wrapper
+# Resolve the shuck binary (shuck is a Rust tool, so there's no venv analog):
+#   1. first real shuck on PATH                 — installed or active toolchain
+#   2. target/{release,debug}/shuck up from cwd — a local cargo build
+#   3. ~/.cargo/bin/shuck                        — cargo's global install dir
+# Shared by the LSP entry and the fix command/hook so resolution is consistent.
 
 set -eu
+
+# First shuck on PATH that isn't one of these plugin wrappers (marker grep).
+found=
+while IFS= read -r cand; do
+  [[ -x "$cand" ]] || continue
+  grep -q 'claude-plugin-tool-wrapper' "$cand" 2>/dev/null && continue
+  found="$cand"
+  break
+done < <(type -ap shuck 2>/dev/null)
+if [[ -n "$found" ]]; then
+  exec "$found" "$@"
+fi
 
 dir="$PWD"
 while :; do
@@ -19,13 +33,9 @@ while :; do
   dir="$parent"
 done
 
-if real="$(command -v shuck 2>/dev/null)" && [[ -x "$real" && "$real" != "$0" ]]; then
-  exec "$real" "$@"
-fi
-
 if [[ -x "$HOME/.cargo/bin/shuck" ]]; then
   exec "$HOME/.cargo/bin/shuck" "$@"
 fi
 
-echo "shuck wrapper: shuck not found in any target/{release,debug}/ walking up from $PWD, on PATH, or in ~/.cargo/bin (try: cargo install shuck)" >&2
+echo "shuck wrapper: shuck not found on PATH, in target/{release,debug} walking up from $PWD, or in ~/.cargo/bin (try: cargo install shuck)" >&2
 exit 127
