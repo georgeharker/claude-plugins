@@ -28,7 +28,7 @@
       "name": "shuck",
       "source": "./shuck",
       "description": "Registers `shuck server` as the shell LSP, plus a `/shuck-fix` command and an opt-in autofix/diagnostics-on-edit hook.",
-      "version": "0.2.0"
+      "version": "0.2.1"
     }
   ]
 }
