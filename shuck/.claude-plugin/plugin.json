@@ -1,6 +1,6 @@
 {
   "name": "shuck",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Register `shuck server` as the shell LSP, plus a `/shuck-fix` command that runs `shuck check --fix` on changed (or named) shell files. Also ships an opt-in PostToolUse hook (SHUCK_FIX_ON_EDIT / SHUCK_DIAGNOSTICS_ON_EDIT, both off by default).",
   "author": {
     "name": "George Harker"

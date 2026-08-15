@@ -10,7 +10,7 @@
       "name": "ruff-fix",
       "source": "./ruff-fix",
       "description": "`/ruff-fix` command (ruff check --fix + format on changed/named files) plus an opt-in autofix/diagnostics-on-edit hook. No LSP — composes with ruff-lsp or pylsp.",
-      "version": "0.3.0"
+      "version": "0.3.1"
     },
     {
       "name": "ruff-lsp",
@@ -28,7 +28,7 @@
       "name": "shuck",
       "source": "./shuck",
       "description": "Registers `shuck server` as the shell LSP, plus a `/shuck-fix` command and an opt-in autofix/diagnostics-on-edit hook.",
-      "version": "0.2.1"
+      "version": "0.2.2"
     }
   ]
 }
